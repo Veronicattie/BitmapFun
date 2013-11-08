@@ -255,6 +255,8 @@ public abstract class ImageWorker {
             // thread and the ImageView that was originally bound to this task is still bound back
             // to this task and our "exit early" flag is not set then try and fetch the bitmap from
             // the cache
+            //如果缓存中存在该图片，并且当前task没有被取消、此task绑定的是这个图片、该task之前没有存在过
+            //就去缓存中获取该图片
             if (mImageCache != null && !isCancelled() && getAttachedImageView() != null
                     && !mExitTasksEarly) {
                 bitmap = mImageCache.getBitmapFromDiskCache(dataString);
@@ -264,6 +266,8 @@ public abstract class ImageWorker {
             // another thread and the ImageView that was originally bound to this task is still
             // bound back to this task and our "exit early" flag is not set, then call the main
             // process method (as implemented by a subclass)
+          //如果缓存中没有该图片，当前task没有被取消、此task绑定的是这个图片、并且缓存中目前没有该图片
+            //就去网络或者硬盘上获取该图片
             if (bitmap == null && !isCancelled() && getAttachedImageView() != null
                     && !mExitTasksEarly) {
                 bitmap = processBitmap(params[0]);
@@ -273,6 +277,7 @@ public abstract class ImageWorker {
             // bitmap to the cache for future use. Note we don't check if the task was cancelled
             // here, if it was, and the thread is still running, we may as well add the processed
             // bitmap to our cache as it might be used again in the future
+            //如果图片从网络或者硬盘上获取到了，就把图片加载到缓存中，不管当前task是否已被取消
             if (bitmap != null && mImageCache != null) {
                 mImageCache.addBitmapToCache(dataString, bitmap);
             }
